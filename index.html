@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salesforce AI-Powered PDF Processing Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            padding: 20px;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: #16213e;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            border-bottom: 2px solid #e94560;
+        }
+        
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            color: #00d9ff;
+        }
+        
+        .architecture-container {
+            padding: 40px;
+            position: relative;
+            background: #1a1a2e;
+        }
+        
+        .architecture-grid {
+            display: grid;
+            grid-template-columns: 400px 300px 600px;
+            gap: 60px;
+            position: relative;
+            min-height: 900px;
+        }
+        
+        /* Layers */
+        .layer {
+            background: rgba(22, 33, 62, 0.6);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            position: relative;
+            border: 2px solid rgba(0, 217, 255, 0.3);
+        }
+        
+        .layer-header {
+            font-size: 1.1em;
+            font-weight: 700;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 2px solid;
+        }
+        
+        .layer-a .layer-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-color: #4a90e2;
+        }
+        
+        .layer-b .layer-header {
+            background: linear-gradient(135deg, #7b1fa2 0%, #9c27b0 100%);
+            border-color: #ba68c8;
+        }
+        
+        .layer-c .layer-header {
+            background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%);
+            border-color: #64b5f6;
+        }
+        
+        /* Component boxes */
+        .component {
+            background: rgba(30, 60, 114, 0.4);
+            border: 3px solid;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        
+        .component:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            filter: brightness(1.2);
+        }
+        
+        .component-icon {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+        }
+        
+        .component-title {
+            font-weight: 700;
+            font-size: 1.05em;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+        
+        .component-subtitle {
+            font-size: 0.85em;
+            color: #00d9ff;
+            line-height: 1.3;
+        }
+        
+        /* Component colors with glow */
+        .comp-user { 
+            border-color: #00d9ff; 
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
+        }
+        .comp-cv { 
+            border-color: #ff9800; 
+            box-shadow: 0 0 15px rgba(255, 152, 0, 0.3);
+        }
+        .comp-trigger { 
+            border-color: #f44336; 
+            box-shadow: 0 0 15px rgba(244, 67, 54, 0.3);
+        }
+        .comp-service { 
+            border-color: #ff5722; 
+            box-shadow: 0 0 15px rgba(255, 87, 34, 0.3);
+        }
+        .comp-console { 
+            border-color: #ffc107; 
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.3);
+        }
+        .comp-record { 
+            border-color: #4caf50; 
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+        }
+        .comp-tunnel { 
+            border-color: #9c27b0; 
+            box-shadow: 0 0 15px rgba(156, 39, 176, 0.3);
+        }
+        .comp-payload { 
+            border-color: #ba68c8; 
+            box-shadow: 0 0 15px rgba(186, 104, 200, 0.3);
+        }
+        .comp-fastapi { 
+            border-color: #2196f3; 
+            box-shadow: 0 0 15px rgba(33, 150, 243, 0.3);
+        }
+        .comp-pypdf { 
+            border-color: #4caf50; 
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+        }
+        .comp-lang { 
+            border-color: #ff9800; 
+            box-shadow: 0 0 15px rgba(255, 152, 0, 0.3);
+        }
+        .comp-gemini { 
+            border-color: #e91e63; 
+            box-shadow: 0 0 15px rgba(233, 30, 99, 0.3);
+        }
+        .comp-regex { 
+            border-color: #9c27b0; 
+            box-shadow: 0 0 15px rgba(156, 39, 176, 0.3);
+        }
+        
+        /* Canvas for arrows */
+        #arrowCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* Control panel */
+        .control-panel {
+            background: rgba(22, 33, 62, 0.8);
+            padding: 20px;
+            margin: 20px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            text-align: center;
+            border: 2px solid rgba(0, 217, 255, 0.3);
+        }
+        
+        .control-btn {
+            background: linear-gradient(135deg, #00d9ff 0%, #0099cc 100%);
+            color: #1a1a2e;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 217, 255, 0.4);
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 217, 255, 0.6);
+            filter: brightness(1.2);
+        }
+        
+        .control-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Speed control */
+        .speed-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 20px;
+        }
+        
+        .speed-control label {
+            color: #00d9ff;
+            font-weight: 600;
+        }
+        
+        .speed-control input[type="range"] {
+            width: 150px;
+        }
+        
+        /* Legend */
+        .legend {
+            background: rgba(22, 33, 62, 0.8);
+            padding: 20px;
+            margin: 20px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            border: 2px solid rgba(0, 217, 255, 0.3);
+        }
+        
+        .legend-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #00d9ff;
+        }
+        
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+            color: #fff;
+        }
+        
+        .particle-demo {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00d9ff, transparent);
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .particle-demo::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #00d9ff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00d9ff;
+            animation: particleMove 2s linear infinite;
+        }
+        
+        @keyframes particleMove {
+            0% { left: -10px; }
+            100% { left: 70px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 AI-Powered PDF Processing System</h1>
+            <p class="subtitle">Salesforce → AI Extraction Engine → Automated Record Creation</p>
+        </header>
+        
+        <div class="control-panel">
+            <button class="control-btn" onclick="toggleAnimation()">⏸️ Pause/Play</button>
+            <button class="control-btn" onclick="resetAnimation()">🔄 Restart</button>
+            <button class="control-btn" id="stepModeBtn" onclick="toggleStepMode()">🎯 Enable Step Mode</button>
+            <button class="control-btn" id="prevStepBtn" onclick="prevStep()" style="display: none;">⬅️ Previous Step</button>
+            <button class="control-btn" id="nextStepBtn" onclick="nextStep()" style="display: none;">➡️ Next Step</button>
+            <div class="speed-control">
+                <label>Animation Speed:</label>
+                <input type="range" min="0.5" max="3" step="0.5" value="1" id="speedControl" onchange="updateSpeed(this.value)">
+                <span id="speedValue">1x</span>
+            </div>
+        </div>
+        
+        <div class="architecture-container">
+            <div class="architecture-grid">
+                <!-- Layer A: Salesforce -->
+                <div class="layer layer-a">
+                    <div class="layer-header">
+                        ⚡ LAYER A: SALESFORCE ORG
+                    </div>
+                    
+                    <div class="component comp-user" id="comp-user">
+                        <div class="component-icon">👤</div>
+                        <div class="component-title">User</div>
+                    </div>
+                    
+                    <div class="component comp-cv" id="comp-cv">
+                        <div class="component-icon">📄</div>
+                        <div class="component-title">ContentVersion</div>
+                        <div class="component-subtitle">Object</div>
+                    </div>
+                    
+                    <div class="component comp-trigger" id="comp-trigger">
+                        <div class="component-icon">⚡</div>
+                        <div class="component-title">ContentVersion</div>
+                        <div class="component-subtitle">Trigger</div>
+                    </div>
+                    
+                    <div class="component comp-service" id="comp-service">
+                        <div class="component-icon">🔄</div>
+                        <div class="component-title">PDFExtraction</div>
+                        <div class="component-subtitle">Service (Queueable Apex)<br/>⏱️ 120s Timeout</div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="component comp-console" id="comp-console">
+                            <div class="component-icon">📊</div>
+                            <div class="component-title">Console</div>
+                            <div class="component-subtitle">Output</div>
+                        </div>
+                        
+                        <div class="component comp-record" id="comp-record">
+                            <div class="component-icon">📋</div>
+                            <div class="component-title">Record</div>
+                            <div class="component-subtitle">Creation</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Layer B: Connection Bridge -->
+                <div class="layer layer-b">
+                    <div class="layer-header">
+                        🌐 LAYER B: CONNECTION BRIDGE
+                    </div>
+                    
+                    <div class="component comp-tunnel" id="comp-tunnel" style="margin-top: 250px;">
+                        <div class="component-icon">🌐</div>
+                        <div class="component-title">Ngrok/Render</div>
+                        <div class="component-subtitle">Tunnel</div>
+                    </div>
+                    
+                    <div class="component comp-payload" id="comp-payload">
+                        <div class="component-icon">📦</div>
+                        <div class="component-title">JSON Payload</div>
+                        <div class="component-subtitle">Base64 PDF</div>
+                    </div>
+                </div>
+                
+                <!-- Layer C: AI Extraction Engine -->
+                <div class="layer layer-c">
+                    <div class="layer-header">
+                        🤖 LAYER C: AI EXTRACTION ENGINE
+                    </div>
+                    
+                    <div class="component comp-fastapi" id="comp-fastapi">
+                        <div class="component-icon">🚀</div>
+                        <div class="component-title">FastAPI Server</div>
+                    </div>
+                    
+                    <div class="component comp-pypdf" id="comp-pypdf">
+                        <div class="component-icon">⚡</div>
+                        <div class="component-title">PyPDFium2</div>
+                        <div class="component-subtitle">C++ Engine, Thread Pool</div>
+                    </div>
+                    
+                    <div class="component comp-lang" id="comp-lang">
+                        <div class="component-icon">🧠</div>
+                        <div class="component-title">LangExtract</div>
+                        <div class="component-subtitle">Parallel Chunking<br>max_workers=10</div>
+                    </div>
+                    
+                    <div class="component comp-gemini" id="comp-gemini">
+                        <div class="component-icon">🤖</div>
+                        <div class="component-title">Gemini Flash-Lite</div>
+                        <div class="component-subtitle">Latest Model</div>
+                    </div>
+                    
+                    <div class="component comp-regex" id="comp-regex">
+                        <div class="component-icon">🔧</div>
+                        <div class="component-title">Regex Sanitizer</div>
+                        <div class="component-subtitle">Clean Output</div>
+                    </div>
+                </div>
+                
+                <!-- Canvas for animated arrows -->
+                <canvas id="arrowCanvas"></canvas>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-title">📖 Data Flow Legend & Controls</div>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div style="width: 60px; height: 3px; background: #00d9ff; border-radius: 2px;"></div>
+                    <span>Incoming Data Flow (Request)</span>
+                </div>
+                <div class="legend-item">
+                    <div style="width: 60px; height: 3px; background: #ff9800; border-radius: 2px;"></div>
+                    <span>Outgoing Data Flow (Response)</span>
+                </div>
+                <div class="legend-item">
+                    <div style="width: 60px; height: 3px; background: linear-gradient(90deg, #ffc107, #4caf50); border-radius: 2px;"></div>
+                    <span>Final Output (Results)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="particle-demo"></div>
+                    <span>Flowing Data Particles</span>
+                </div>
+                <div class="legend-item">
+                    <div style="width: 12px; height: 12px; background: #00d9ff; border-radius: 50%; box-shadow: 0 0 10px #00d9ff;"></div>
+                    <span>Active Data Transfer</span>
+                </div>
+                <div class="legend-item" style="grid-column: 1 / -1; margin-top: 10px; padding: 15px; background: rgba(0, 217, 255, 0.1); border-radius: 8px; border: 1px solid rgba(0, 217, 255, 0.3);">
+                    <strong style="color: #00d9ff;">💡 Step Mode:</strong> Click "Enable Step Mode" to control the animation manually. Use "⬅️ Previous Step" to go back and "➡️ Next Step" to advance through each stage of the data flow one at a time. Perfect for presentations and detailed walkthroughs!
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('arrowCanvas');
+        const ctx = canvas.getContext('2d');
+        let animationId;
+        let isPaused = false;
+        let speedMultiplier = 1;
+        let stepMode = false;
+        let currentStep = 0;
+        let stepParticles = [];
+        
+        // Step definitions - one for each major data flow
+        const flowSteps = [
+            { name: '1. Upload PDF', from: 'comp-user', to: 'comp-cv', color: '#00d9ff' },
+            { name: '2. After Insert', from: 'comp-cv', to: 'comp-trigger', color: '#00d9ff' },
+            { name: '3. Async Queue', from: 'comp-trigger', to: 'comp-service', color: '#00d9ff' },
+            { name: '4. HTTP POST', from: 'comp-service', to: 'comp-tunnel', color: '#00d9ff' },
+            { name: 'Forward', from: 'comp-tunnel', to: 'comp-payload', color: '#00d9ff' },
+            { name: 'Receive', from: 'comp-payload', to: 'comp-fastapi', color: '#00d9ff' },
+            { name: '5. Decode', from: 'comp-fastapi', to: 'comp-pypdf', color: '#00d9ff' },
+            { name: 'Raw Text', from: 'comp-pypdf', to: 'comp-lang', color: '#00d9ff' },
+            { name: '6. Few-Shot', from: 'comp-lang', to: 'comp-gemini', color: '#00d9ff' },
+            { name: 'Structured JSON', from: 'comp-gemini', to: 'comp-lang', color: '#ff9800' },
+            { name: 'Process', from: 'comp-lang', to: 'comp-regex', color: '#ff9800' },
+            { name: '7. Clean JSON', from: 'comp-regex', to: 'comp-fastapi', color: '#ff9800' },
+            { name: 'Package', from: 'comp-fastapi', to: 'comp-payload', color: '#ff9800' },
+            { name: 'Send', from: 'comp-payload', to: 'comp-tunnel', color: '#ff9800' },
+            { name: 'Response', from: 'comp-tunnel', to: 'comp-service', color: '#ff9800' },
+            { name: '8a. Print', from: 'comp-service', to: 'comp-console', color: '#ffc107' },
+            { name: '8b. Create', from: 'comp-service', to: 'comp-record', color: '#4caf50' }
+        ];
+        
+        // Resize canvas to match container
+        function resizeCanvas() {
+            const container = document.querySelector('.architecture-grid');
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // Get component center position
+        function getComponentCenter(id) {
+            const elem = document.getElementById(id);
+            const rect = elem.getBoundingClientRect();
+            const container = document.querySelector('.architecture-grid').getBoundingClientRect();
+            return {
+                x: rect.left + rect.width / 2 - container.left,
+                y: rect.top + rect.height / 2 - container.top
+            };
+        }
+        
+        // Particle class
+        class Particle {
+            constructor(path, color, delay = 0, label = '') {
+                this.path = path;
+                this.color = color;
+                this.progress = -delay / 100;
+                this.speed = 0.005 * speedMultiplier;
+                this.size = 8;
+                this.label = label;
+                this.labelOffset = 20;
+            }
+            
+            update() {
+                if (!isPaused) {
+                    this.progress += this.speed * speedMultiplier;
+                    if (this.progress > 1.2) {
+                        this.progress = -0.2;
+                    }
+                }
+            }
+            
+            draw() {
+                if (this.progress < 0 || this.progress > 1) return;
+                
+                const point = this.getPointOnPath(this.progress);
+                
+                // Draw glow
+                const gradient = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, this.size * 2);
+                gradient.addColorStop(0, this.color);
+                gradient.addColorStop(0.5, this.color + '80');
+                gradient.addColorStop(1, 'transparent');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, this.size * 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw particle
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                // Draw label
+                if (this.label && this.progress > 0.3 && this.progress < 0.7) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 12px "Segoe UI"';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(this.label, point.x, point.y - this.labelOffset);
+                }
+            }
+            
+            getPointOnPath(t) {
+                const start = this.path.start;
+                const end = this.path.end;
+                
+                // Use quadratic bezier curve for smoother paths
+                if (this.path.control) {
+                    const control = this.path.control;
+                    const x = Math.pow(1-t, 2) * start.x + 2 * (1-t) * t * control.x + Math.pow(t, 2) * end.x;
+                    const y = Math.pow(1-t, 2) * start.y + 2 * (1-t) * t * control.y + Math.pow(t, 2) * end.y;
+                    return {x, y};
+                }
+                
+                return {
+                    x: start.x + (end.x - start.x) * t,
+                    y: start.y + (end.y - start.y) * t
+                };
+            }
+        }
+        
+        // Create paths between components
+        const paths = [
+            // FORWARD FLOW (Blue/Cyan - Incoming Data)
+            { from: 'comp-user', to: 'comp-cv', color: '#00d9ff', label: '1. Upload PDF', delay: 0, direction: 'forward' },
+            { from: 'comp-cv', to: 'comp-trigger', color: '#00d9ff', label: '2. After Insert', delay: 20, direction: 'forward' },
+            { from: 'comp-trigger', to: 'comp-service', color: '#00d9ff', label: '3. Async Queue', delay: 40, direction: 'forward' },
+            { from: 'comp-service', to: 'comp-tunnel', color: '#00d9ff', label: '4. HTTP POST', delay: 60, direction: 'forward' },
+            { from: 'comp-tunnel', to: 'comp-payload', color: '#00d9ff', label: 'Forward', delay: 75, direction: 'forward' },
+            { from: 'comp-payload', to: 'comp-fastapi', color: '#00d9ff', label: 'Receive', delay: 85, direction: 'forward' },
+            { from: 'comp-fastapi', to: 'comp-pypdf', color: '#00d9ff', label: '5. Decode', delay: 100, direction: 'forward' },
+            { from: 'comp-pypdf', to: 'comp-lang', color: '#00d9ff', label: 'Raw Text', delay: 115, direction: 'forward' },
+            { from: 'comp-lang', to: 'comp-gemini', color: '#00d9ff', label: '6. Few-Shot', delay: 130, direction: 'forward' },
+            
+            // BACKWARD FLOW (Orange/Red - Outgoing Data)
+            { from: 'comp-gemini', to: 'comp-lang', color: '#ff9800', label: 'Structured JSON', delay: 145, direction: 'backward' },
+            { from: 'comp-lang', to: 'comp-regex', color: '#ff9800', label: 'Process', delay: 155, direction: 'backward' },
+            { from: 'comp-regex', to: 'comp-fastapi', color: '#ff9800', label: '7. Clean JSON', delay: 165, direction: 'backward' },
+            { from: 'comp-fastapi', to: 'comp-payload', color: '#ff9800', label: 'Package', delay: 180, direction: 'backward' },
+            { from: 'comp-payload', to: 'comp-tunnel', color: '#ff9800', label: 'Send', delay: 185, direction: 'backward' },
+            { from: 'comp-tunnel', to: 'comp-service', color: '#ff9800', label: 'Response', delay: 195, direction: 'backward' },
+            
+            // FINAL OUTPUT (Green/Yellow - Results)
+            { from: 'comp-service', to: 'comp-console', color: '#ffc107', label: '8a. Print', delay: 210, direction: 'output' },
+            { from: 'comp-service', to: 'comp-record', color: '#4caf50', label: '8b. Create', delay: 210, direction: 'output' }
+        ];
+        
+        let particles = [];
+        
+        // Initialize particles
+        function initParticles() {
+            particles = [];
+            paths.forEach(pathDef => {
+                const start = getComponentCenter(pathDef.from);
+                const end = getComponentCenter(pathDef.to);
+                
+                // Calculate control point for curved path with offset based on direction
+                let offset = 0;
+                if (pathDef.direction === 'forward') {
+                    offset = -40; // Curve upward for forward flow
+                } else if (pathDef.direction === 'backward') {
+                    offset = 40; // Curve downward for backward flow
+                }
+                
+                const controlX = (start.x + end.x) / 2;
+                const controlY = (start.y + end.y) / 2 + offset;
+                
+                const path = {
+                    start: start,
+                    end: end,
+                    control: { x: controlX, y: controlY }
+                };
+                
+                // Create multiple particles per path for continuous flow
+                for (let i = 0; i < 3; i++) {
+                    particles.push(new Particle(path, pathDef.color, pathDef.delay + (i * 33), i === 1 ? pathDef.label : ''));
+                }
+            });
+        }
+        
+        // Draw connection lines
+        function drawConnections() {
+            paths.forEach(pathDef => {
+                const start = getComponentCenter(pathDef.from);
+                const end = getComponentCenter(pathDef.to);
+                
+                // Calculate control point with offset based on direction
+                let offset = 0;
+                if (pathDef.direction === 'forward') {
+                    offset = -40; // Curve upward for forward flow
+                } else if (pathDef.direction === 'backward') {
+                    offset = 40; // Curve downward for backward flow
+                }
+                
+                const controlX = (start.x + end.x) / 2;
+                const controlY = (start.y + end.y) / 2 + offset;
+                
+                // Draw faint connection line
+                ctx.strokeStyle = pathDef.color + '30';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(start.x, start.y);
+                ctx.quadraticCurveTo(controlX, controlY, end.x, end.y);
+                ctx.stroke();
+                
+                // Draw arrowhead
+                // Calculate angle at the end point
+                const t = 0.99;
+                const x1 = Math.pow(1-t, 2) * start.x + 2 * (1-t) * t * controlX + Math.pow(t, 2) * end.x;
+                const y1 = Math.pow(1-t, 2) * start.y + 2 * (1-t) * t * controlY + Math.pow(t, 2) * end.y;
+                
+                const angle = Math.atan2(end.y - y1, end.x - x1);
+                const arrowSize = 12;
+                ctx.fillStyle = pathDef.color + '60';
+                ctx.beginPath();
+                ctx.moveTo(end.x, end.y);
+                ctx.lineTo(
+                    end.x - arrowSize * Math.cos(angle - Math.PI / 6),
+                    end.y - arrowSize * Math.sin(angle - Math.PI / 6)
+                );
+                ctx.lineTo(
+                    end.x - arrowSize * Math.cos(angle + Math.PI / 6),
+                    end.y - arrowSize * Math.sin(angle + Math.PI / 6)
+                );
+                ctx.closePath();
+                ctx.fill();
+            });
+        }
+        
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw connection lines
+            drawConnections();
+            
+            if (stepMode) {
+                // Step mode: only update and draw step particles
+                stepParticles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                });
+            } else {
+                // Automatic mode: update and draw all particles
+                particles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                });
+            }
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        // Control functions
+        function toggleAnimation() {
+            isPaused = !isPaused;
+        }
+        
+        function resetAnimation() {
+            isPaused = false;
+            currentStep = 0;
+            if (stepMode) {
+                stepParticles = [];
+            } else {
+                initParticles();
+            }
+        }
+        
+        function updateSpeed(value) {
+            speedMultiplier = parseFloat(value);
+            document.getElementById('speedValue').textContent = value + 'x';
+            particles.forEach(p => p.speed = 0.005 * speedMultiplier);
+        }
+        
+        function toggleStepMode() {
+            stepMode = !stepMode;
+            const stepModeBtn = document.getElementById('stepModeBtn');
+            const nextStepBtn = document.getElementById('nextStepBtn');
+            const prevStepBtn = document.getElementById('prevStepBtn');
+            const speedControl = document.querySelector('.speed-control');
+            
+            if (stepMode) {
+                // Enable step mode
+                stepModeBtn.textContent = '🔄 Disable Step Mode';
+                stepModeBtn.style.background = 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)';
+                nextStepBtn.style.display = 'inline-block';
+                prevStepBtn.style.display = 'inline-block';
+                speedControl.style.display = 'none';
+                isPaused = true;
+                currentStep = 0;
+                stepParticles = [];
+                particles = [];
+                updateStepButtons();
+            } else {
+                // Disable step mode
+                stepModeBtn.textContent = '🎯 Enable Step Mode';
+                stepModeBtn.style.background = 'linear-gradient(135deg, #00d9ff 0%, #0099cc 100%)';
+                nextStepBtn.style.display = 'none';
+                prevStepBtn.style.display = 'none';
+                speedControl.style.display = 'inline-flex';
+                isPaused = false;
+                currentStep = 0;
+                stepParticles = [];
+                initParticles();
+            }
+        }
+        
+        function updateStepButtons() {
+            const nextStepBtn = document.getElementById('nextStepBtn');
+            const prevStepBtn = document.getElementById('prevStepBtn');
+            
+            // Update Previous button
+            if (currentStep <= 0) {
+                prevStepBtn.disabled = true;
+                prevStepBtn.style.opacity = '0.5';
+                prevStepBtn.style.cursor = 'not-allowed';
+            } else {
+                prevStepBtn.disabled = false;
+                prevStepBtn.style.opacity = '1';
+                prevStepBtn.style.cursor = 'pointer';
+            }
+            
+            // Update Next button
+            if (currentStep >= flowSteps.length) {
+                nextStepBtn.textContent = '🔄 Restart';
+            } else {
+                nextStepBtn.textContent = `➡️ Next Step (${currentStep + 1}/${flowSteps.length})`;
+            }
+        }
+        
+        function prevStep() {
+            if (currentStep <= 0) return;
+            
+            // Remove the last particle
+            if (stepParticles.length > 0) {
+                stepParticles.pop();
+            }
+            currentStep--;
+            updateStepButtons();
+        }
+        
+        function nextStep() {
+            if (currentStep >= flowSteps.length) {
+                // Reset to beginning
+                currentStep = 0;
+                stepParticles = [];
+                updateStepButtons();
+                return;
+            }
+            
+            const step = flowSteps[currentStep];
+            const start = getComponentCenter(step.from);
+            const end = getComponentCenter(step.to);
+            
+            // Determine direction for curve offset
+            let offset = 0;
+            let labelOffset = 20; // Default label offset
+            
+            if (currentStep < 9) {
+                offset = -40; // Forward flow curves upward
+                labelOffset = -25; // Label above the line
+            } else if (currentStep < 15) {
+                offset = 40; // Backward flow curves downward
+                labelOffset = 35; // Label below the line to avoid overlap
+            } else {
+                // Final outputs
+                labelOffset = 20;
+            }
+            
+            const controlX = (start.x + end.x) / 2;
+            const controlY = (start.y + end.y) / 2 + offset;
+            
+            const path = {
+                start: start,
+                end: end,
+                control: { x: controlX, y: controlY }
+            };
+            
+            // Create a single particle for this step with adjusted label offset
+            const particle = new StepParticle(path, step.color, step.name, labelOffset);
+            stepParticles.push(particle);
+            
+            currentStep++;
+            updateStepButtons();
+        }
+        
+        // Step particle class for manual mode
+        class StepParticle {
+            constructor(path, color, label, labelOffset = 20) {
+                this.path = path;
+                this.color = color;
+                this.progress = 0;
+                this.speed = 0.02;
+                this.size = 10;
+                this.label = label;
+                this.labelOffset = labelOffset;
+                this.completed = false;
+            }
+            
+            update() {
+                if (!this.completed) {
+                    this.progress += this.speed;
+                    if (this.progress >= 1) {
+                        this.progress = 1;
+                        this.completed = true;
+                    }
+                }
+            }
+            
+            draw() {
+                const point = this.getPointOnPath(this.progress);
+                
+                // Draw trail
+                if (this.progress > 0) {
+                    const trailLength = Math.min(this.progress, 0.3);
+                    ctx.strokeStyle = this.color + '60';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    
+                    for (let t = Math.max(0, this.progress - trailLength); t <= this.progress; t += 0.02) {
+                        const p = this.getPointOnPath(t);
+                        if (t === Math.max(0, this.progress - trailLength)) {
+                            ctx.moveTo(p.x, p.y);
+                        } else {
+                            ctx.lineTo(p.x, p.y);
+                        }
+                    }
+                    ctx.stroke();
+                }
+                
+                // Draw glow
+                const gradient = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, this.size * 2.5);
+                gradient.addColorStop(0, this.color);
+                gradient.addColorStop(0.5, this.color + 'AA');
+                gradient.addColorStop(1, 'transparent');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, this.size * 2.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw particle
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                // Draw label with custom offset to avoid overlap
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 14px "Segoe UI"';
+                ctx.textAlign = 'center';
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 3;
+                ctx.strokeText(this.label, point.x, point.y + this.labelOffset);
+                ctx.fillText(this.label, point.x, point.y + this.labelOffset);
+            }
+            
+            getPointOnPath(t) {
+                const start = this.path.start;
+                const end = this.path.end;
+                
+                if (this.path.control) {
+                    const control = this.path.control;
+                    const x = Math.pow(1-t, 2) * start.x + 2 * (1-t) * t * control.x + Math.pow(t, 2) * end.x;
+                    const y = Math.pow(1-t, 2) * start.y + 2 * (1-t) * t * control.y + Math.pow(t, 2) * end.y;
+                    return {x, y};
+                }
+                
+                return {
+                    x: start.x + (end.x - start.x) * t,
+                    y: start.y + (end.y - start.y) * t
+                };
+            }
+        }
+        
+        // Initialize and start
+        window.addEventListener('load', () => {
+            initParticles();
+            animate();
+        });
+        
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initParticles();
+        });
+    </script>
+</body>
+</html>
